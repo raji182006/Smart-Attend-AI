@@ -1,0 +1,100 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Authenticated user profile in SmartAttend AI",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "fullName": { "type": "string", "maxLength": 100 },
+        "role": { "type": "string", "enum": ["admin", "faculty", "student", "parent"] },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "lastLoginAt": { "type": "string" }
+      },
+      "required": ["id", "email", "role"]
+    },
+    "AttendanceRecord": {
+      "title": "AttendanceRecord",
+      "description": "Recorded session attendance for a student",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "studentId": { "type": "number" },
+        "studentName": { "type": "string", "maxLength": 100 },
+        "rollNumber": { "type": "string", "maxLength": 30 },
+        "subjectId": { "type": "number" },
+        "subjectCode": { "type": "string", "maxLength": 20 },
+        "subjectName": { "type": "string", "maxLength": 100 },
+        "date": { "type": "string", "format": "date" },
+        "timeSlot": { "type": "string", "maxLength": 30 },
+        "status": { "type": "string", "enum": ["Present", "Absent", "On Leave"] },
+        "remarks": { "type": "string", "maxLength": 250 },
+        "facultyId": { "type": "number" },
+        "facultyName": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["studentId", "subjectId", "date", "status"]
+    },
+    "LeaveRequest": {
+      "title": "LeaveRequest",
+      "description": "Student leave application and review record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "number" },
+        "studentId": { "type": "number" },
+        "studentName": { "type": "string", "maxLength": 100 },
+        "rollNumber": { "type": "string", "maxLength": 30 },
+        "startDate": { "type": "string", "format": "date" },
+        "endDate": { "type": "string", "format": "date" },
+        "reasonType": { "type": "string", "enum": ["Medical", "Family Event", "Academic / On Duty", "Emergency", "Other"] },
+        "description": { "type": "string", "maxLength": 500 },
+        "documentUrl": { "type": "string" },
+        "status": { "type": "string", "enum": ["Pending", "Approved", "Rejected"] },
+        "reviewedBy": { "type": "string" },
+        "reviewRemarks": { "type": "string", "maxLength": 300 },
+        "appliedAt": { "type": "string" },
+        "reviewedAt": { "type": "string" }
+      },
+      "required": ["studentId", "startDate", "endDate", "reasonType", "status"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "In-app and automation notification dispatch",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "recipientRole": { "type": "string" },
+        "studentId": { "type": "number" },
+        "studentName": { "type": "string" },
+        "type": { "type": "string" },
+        "title": { "type": "string", "maxLength": 150 },
+        "message": { "type": "string", "maxLength": 500 },
+        "channel": { "type": "string" },
+        "deliveryStatus": { "type": "string" },
+        "isRead": { "type": "boolean" },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["title", "message", "channel", "isRead"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profile records indexed by auth UID"
+    },
+    "/attendance/{recordId}": {
+      "schema": { "$ref": "#/entities/AttendanceRecord" },
+      "description": "Class session attendance records"
+    },
+    "/leaves/{leaveId}": {
+      "schema": { "$ref": "#/entities/LeaveRequest" },
+      "description": "Student leave applications and approval states"
+    },
+    "/notifications/{notifId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "Audit trail of system and automated notifications"
+    }
+  }
+}

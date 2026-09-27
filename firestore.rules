@@ -1,0 +1,69 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Health check / connection test document (required by skill)
+    match /test/{docId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // Users Collection: Profiles indexed by Auth UID
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId) && incoming().email is string && incoming().email.size() <= 120;
+      allow update: if isOwner(userId);
+      allow delete: if false;
+    }
+
+    // Attendance Records Collection
+    match /attendance/{recordId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && incoming().studentId is number && incoming().date is string;
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn();
+    }
+
+    // Leave Requests Collection
+    match /leaves/{leaveId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && incoming().studentId is number && incoming().startDate is string;
+      allow update: if isSignedIn();
+      allow delete: if isSignedIn();
+    }
+
+    // Notification Audit Logs Collection
+    match /notifications/{notifId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && incoming().title is string;
+      allow update: if isSignedIn();
+      allow delete: if false;
+    }
+  }
+}

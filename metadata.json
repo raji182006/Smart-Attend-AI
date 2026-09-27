@@ -1,0 +1,6 @@
+{
+  "name": "SmartAttend AI",
+  "description": "Smart Student Attendance Monitoring & Automated Notification System with AI risk analysis, predictive calculator, n8n automation, and multi-role dashboards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
